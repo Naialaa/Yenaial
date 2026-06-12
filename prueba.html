@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YENAIAL - Taller de Bicicletas</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#111111; --bg2:#1a1a1a; --card:#1e1e1e; --card2:#252525;
+  --border:#2a2a2a; --blue:#3399FF; --blue-dim:rgba(51,153,255,.15);
+  --blue-dim2:rgba(51,153,255,.08); --white:#fff; --gray:#8a8a8a;
+  --gray2:#555; --green:#22c55e; --red:#ef4444; --orange:#f97316;
+  --font-head:'Rajdhani',sans-serif; --font-body:'Exo 2',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);font-family:var(--font-body);color:var(--white);display:flex;justify-content:center;align-items:flex-start}
+.app{width:100%;max-width:480px;min-height:100vh;background:var(--bg);position:relative; overflow-x: hidden;}
+.screen{display:none;flex-direction:column;min-height:100vh;animation:fadeIn .25s ease}
+.screen.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ====== LOGO SVG inline ====== */
+.logo-svg{display:block}
+
+/* ====== LOGIN / REGISTER ====== */
+#screen-login,#screen-register,#screen-forgot{
+  justify-content:space-between;align-items:center;padding:36px 24px 20px
+}
+.login-top{display:flex;flex-direction:column;align-items:center;gap:5px;margin-bottom:12px}
+.logo-box{width:72px;height:72px;background:#1c2a3a;border:2px solid var(--blue);border-radius:14px;display:flex;align-items:center;justify-content:center}
+.logo-box svg{width:50px;height:50px}
+.logo-name{font-family:var(--font-head);font-size:28px;font-weight:700;letter-spacing:3px}
+.logo-sub{font-size:12px;color:var(--gray);letter-spacing:1px}
+.auth-card{width:100%;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:26px 22px}
+.auth-card h2{font-family:var(--font-head);font-size:22px;font-weight:600;margin-bottom:18px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:12px;color:var(--gray);margin-bottom:5px;letter-spacing:.4px}
+.input-wrap{position:relative;display:flex;align-items:center}
+.input-wrap .ico{position:absolute;left:11px;color:var(--gray);width:15px;height:15px;pointer-events:none}
+.input-wrap input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 36px;color:var(--white);font-family:var(--font-body);font-size:14px;outline:none;transition:border-color .2s}
+.input-wrap input:focus{border-color:var(--blue)}
+.input-wrap input::placeholder{color:var(--gray2)}
+.input-wrap input.error{border-color:var(--red)}
+.eye-btn{position:absolute;right:11px;background:none;border:none;cursor:pointer;color:var(--gray);padding:0;display:flex}
+.field-error{font-size:11px;color:var(--red);margin-top:4px;display:none}
+.field-error.show{display:block}
+.form-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.checkbox-wrap{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--gray);cursor:pointer}
+.checkbox-wrap input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px}
+.link-blue{font-size:13px;color:var(--blue);cursor:pointer}
+.link-blue:hover{text-decoration:underline}
+.btn-primary{width:100%;background:var(--blue);color:var(--white);border:none;border-radius:10px;padding:13px;font-family:var(--font-head);font-size:16px;font-weight:600;letter-spacing:1px;cursor:pointer;transition:background .2s,transform .1s}
+.btn-primary:hover{background:#2288ee}
+.btn-primary:active{transform:scale(.98)}
+.divider{display:flex;align-items:center;margin:18px 0;gap:10px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.divider span{width:6px;height:6px;background:var(--border);border-radius:50%}
+.auth-bottom{text-align:center;font-size:13px;color:var(--gray)}
+.login-footer{font-size:11px;color:var(--gray2);text-align:center;padding-bottom:8px}
+.pw-strength{height:3px;border-radius:2px;background:var(--border);margin-top:5px;overflow:hidden}
+.pw-strength-bar{height:100%;width:0;border-radius:2px;transition:width .3s,background .3s}
+.pw-hint{font-size:10px;color:var(--gray);margin-top:3px}
+
+/* ====== TOP HEADER ====== */
+.top-header{display:flex;align-items:center;gap:10px;padding:14px 18px 10px;border-bottom:1px solid var(--border)}
+.logo-box-sm{width:32px;height:32px;background:#1c2a3a;border:1.5px solid var(--blue);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-box-sm svg{width:20px;height:20px}
+.header-text .name{font-family:var(--font-head);font-size:15px;font-weight:700;letter-spacing:2px;line-height:1.2}
+.header-text .sub{font-size:9px;color:var(--gray);letter-spacing:.4px}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.user-avatar{width:30px;height:30px;border-radius:50%;background:var(--blue-dim);border:1.5px solid var(--blue);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--blue);cursor:pointer}
+.logout-btn { background: none; border: 1px solid var(--red); color: var(--red); border-radius: 6px; padding: 4px 8px; font-size: 10px; cursor: pointer; transition: all 0.2s; font-family: var(--font-body); text-transform: uppercase; font-weight: bold;}
+.logout-btn:hover { background: rgba(239,68,68,.1); }
+
+/* ====== SCROLL CONTENT ====== */
+.scroll-content{flex:1;overflow-y:auto;padding:14px 18px 80px}
+.scroll-content::-webkit-scrollbar{width:3px}
+.scroll-content::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.page-title{margin-bottom:14px}
+.page-title h2{font-family:var(--font-head);font-size:20px;font-weight:700;letter-spacing:.8px}
+.page-title p{font-size:12px;color:var(--gray);margin-top:2px}
+.section-title{font-family:var(--font-head);font-size:15px;font-weight:600;letter-spacing:.4px;margin-bottom:8px;color:var(--white)}
+
+/* ====== BOTTOM NAV ====== */
+.bottom-nav{position:fixed;bottom:0;width:100%;max-width:480px;background:var(--card);border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(4,1fr);z-index:100; height: 50px;}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 7px;cursor:pointer;position:relative;transition:color .2s;color:var(--gray);border:none;background:none;font-family:var(--font-body)}
+.nav-item.active{color:var(--blue)}
+.nav-item.active::after{content:'';position:absolute;top:0;left:25%;width:50%;height:2px;background:var(--blue);border-radius:0 0 3px 3px}
+.nav-item svg{width:21px;height:21px}
+.nav-item span{font-size:10px;letter-spacing:.2px}
+
+/* ====== DASHBOARD ====== */
+.estado-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px}
+.estado-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.estado-label{font-size:11px;color:var(--gray);margin-bottom:2px}
+.estado-value{color:var(--blue);font-family:var(--font-head);font-size:18px;font-weight:600}
+.estado-icon{width:38px;height:38px;background:var(--blue-dim);border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid var(--blue)}
+.estado-icon svg{width:18px;height:18px;color:var(--blue)}
+.progress-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.step{display:flex;flex-direction:column;align-items:center;gap:4px}
+.step-bar{width:100%;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.step-bar .fill{height:100%;background:var(--blue);border-radius:2px;transition:width .6s ease}
+.step-dot{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--border);border:2px solid var(--border)}
+.step-dot.done{background:var(--blue);border-color:var(--blue)}
+.step-dot.done svg{color:var(--white)}
+.step-dot.partial{background:var(--bg2);border-color:var(--blue)}
+.step-dot svg{width:9px;height:9px;color:var(--gray2)}
+.step-name{font-size:8px;color:var(--gray);text-align:center}
+.step-name.active{color:var(--blue)}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 8px;text-align:center}
+.stat-num{font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--blue);line-height:1}
+.stat-label{font-size:10px;color:var(--gray);margin-top:2px}
+.stat-label.green{color:var(--green)}
+.stat-label.red{color:var(--red)}
+.activity-list{display:flex;flex-direction:column;gap:7px}
+.activity-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 13px;display:flex;align-items:center;justify-content:space-between}
+.activity-left{display:flex;align-items:center;gap:9px}
+.activity-dot{width:7px;height:7px;border-radius:50%;background:var(--blue);flex-shrink:0}
+.activity-info .title{font-size:13px;font-weight:500}
+.activity-info .time{font-size:11px;color:var(--gray);margin-top:1px}
+.activity-arrow svg{width:13px;height:13px;color:var(--blue)}
+.empty-state{text-align:center;padding:30px 20px;color:var(--gray);font-size:13px}
+.empty-state svg{width:40px;height:40px;color:var(--gray2);margin-bottom:10px;display:block;margin-left:auto;margin-right:auto}
+.fab{position:fixed;bottom:76px;right:calc(50% - 230px);width:44px;height:44px;background:var(--blue);border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px rgba(51,153,255,.4);z-index:99;transition:transform .2s}
+.fab:hover{transform:scale(1.1)}
+.fab svg{color:white;width:18px;height:18px}
+@media(max-width:480px){.fab{right:18px}}
+
+/* ====== GARAGE ====== */
+.bike-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:12px;display:flex;flex-direction:column;align-items:center}
+.bike-icon-wrap{width:100%;background:var(--bg2);border-radius:10px;padding:20px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.bike-icon-wrap svg{width:80px;height:80px;color:var(--blue)}
+.bike-name{font-family:var(--font-head);font-size:20px;font-weight:700;letter-spacing:1px;margin-bottom:12px;text-align:center}
+.bike-details{width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.bike-detail{text-align:center;background:var(--bg2);border-radius:7px;padding:7px 4px}
+.bike-detail .d-label{font-size:9px;color:var(--gray);margin-bottom:2px}
+.bike-detail .d-value{font-size:12px;font-weight:600}
+.edit-btn{margin-top:12px;background:var(--blue-dim);border:1px solid var(--blue);color:var(--blue);border-radius:8px;padding:7px 16px;font-size:13px;font-family:var(--font-body);cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .2s}
+.edit-btn:hover{background:var(--blue-dim)}
+.edit-btn svg{width:13px;height:13px}
+.comp-list{display:flex;flex-direction:column;gap:7px}
+.comp-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 13px;display:flex;align-items:center;gap:11px}
+.comp-icon{width:34px;height:34px;background:var(--blue-dim);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.comp-icon svg{width:17px;height:17px;color:var(--blue)}
+.comp-icon.warn{background:rgba(239,68,68,.1)}
+.comp-icon.warn svg{color:var(--red)}
+.comp-info{flex:1;min-width:0}
+.comp-info .c-name{font-size:13px;font-weight:600;margin-bottom:1px}
+.comp-info .c-model{font-size:11px;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.comp-info .c-status{font-size:11px;margin-top:2px}
+.comp-info .c-status.good{color:var(--green)}
+.comp-info .c-status.warn{color:var(--red)}
+.comp-info .c-status.ok{color:var(--green)}
+.comp-right{text-align:right;flex-shrink:0}
+.comp-right .c-time{font-size:10px;color:var(--gray)}
+.comp-right svg{width:13px;height:13px;color:var(--gray2);margin-top:3px}
+
+/* Edit bike modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-sheet{background:var(--card2);border:1px solid var(--border);border-radius:18px 18px 0 0;padding:22px 20px 32px;width:100%;max-width:480px;transform:translateY(100%);transition:transform .3s ease}
+.modal-overlay.open .modal-sheet{transform:translateY(0)}
+.modal-title{font-family:var(--font-head);font-size:18px;font-weight:700;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center}
+.modal-close{background:none;border:none;cursor:pointer;color:var(--gray);padding:0}
+.modal-close svg{width:18px;height:18px}
+
+/* ====== RESERVAS ====== */
+.calendar-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px}
+.cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.cal-header .month{font-family:var(--font-head);font-size:15px;font-weight:600}
+.cal-nav{background:var(--card2);border:1px solid var(--border);cursor:pointer;color:var(--gray);padding:5px 8px;border-radius:6px;display:flex;align-items:center;justify-content:center}
+.cal-nav:hover{color:var(--blue);border-color:var(--blue)}
+.cal-nav svg{width:14px;height:14px}
+.cal-days-header{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;margin-bottom:6px}
+.cal-days-header span{font-size:10px;color:var(--gray);padding:3px 0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:12px;border-radius:50%;cursor:default;color:var(--gray2);user-select:none}
+.cal-day.available{color:var(--white);border:1.5px solid var(--blue);cursor:pointer}
+.cal-day.available:hover{background:var(--blue-dim)}
+.cal-day.selected{background:var(--blue);border-color:var(--blue);color:white;font-weight:700}
+.cal-day.today{color:var(--blue);font-weight:700}
+.cal-day.past{color:var(--gray2);border-color:var(--border)}
+.time-section{margin-bottom:12px}
+.time-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:8px}
+.time-btn{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:9px 4px;text-align:center;font-size:13px;font-family:var(--font-body);color:var(--white);cursor:pointer;transition:all .15s}
+.time-btn:hover{border-color:var(--blue)}
+.time-btn.selected{background:var(--blue);border-color:var(--blue);color:white;font-weight:600}
+.summary-box{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.summary-box svg{color:var(--blue);width:17px;height:17px;flex-shrink:0}
+.summary-box .s-label{font-size:10px;color:var(--gray);margin-bottom:2px}
+.summary-box .s-value{font-size:13px;font-weight:600}
+.btn-confirm{width:100%;background:var(--blue);color:white;border:none;border-radius:10px;padding:13px;font-family:var(--font-head);font-size:16px;font-weight:600;letter-spacing:1px;cursor:pointer;transition:background .2s;margin-bottom:12px}
+.btn-confirm:hover{background:#2288ee}
+
+/* ====== YENAIAL BOT (USER STRUCTURE ESTILIZADA) ====== */
+#screen-bot { display: none; height: 100vh; position: relative; }
+#screen-bot.active { display: flex; flex-direction: column; }
+.chat-container { display: flex; flex-direction: column; height: 100%; padding-bottom: 50px; /* Evita que el bottom nav tape la zona de input */ }
+.chat-header { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px 18px; border-bottom: 1px solid var(--border); background: var(--bg); }
+.chat-header h2 { font-family: var(--font-head); font-size: 18px; font-weight: 700; letter-spacing: 1px; color: var(--white); margin-bottom: 2px; }
+.chat-header p { font-size: 11px; color: var(--green); margin: 0; }
+.chat-box { flex: 1; overflow-y: auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.chat-box::-webkit-scrollbar { width: 3px; }
+.chat-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* Estilos de mensajes re-aprovechados */
+.msg{max-width:82%;padding:10px 13px;border-radius:14px;font-size:13px;line-height:1.5;word-break:break-word}
+.msg a{color:var(--blue)}
+.user-msg{background:var(--blue);color:white;align-self:flex-end;border-bottom-right-radius:4px}
+.ai-msg{background:var(--card2);border:1px solid var(--border);color:var(--white);align-self:flex-start;border-bottom-left-radius:4px}
+.error-msg{background:rgba(239,68,68,.1);border:1px solid var(--red);color:var(--red);align-self:flex-start;border-radius:10px;font-size:12px}
+.typing-msg{background:var(--card2);border:1px solid var(--border);align-self:flex-start;border-bottom-left-radius:4px;padding:10px 16px}
+.typing-dots{display:flex;gap:4px;align-items:center;height:14px}
+.typing-dots span{width:6px;height:6px;border-radius:50%;background:var(--gray);animation:blink 1.2s infinite}
+.typing-dots span:nth-child(2){animation-delay:.2s}
+.typing-dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.3}40%{opacity:1}}
+
+/* Zona input del usuario */
+.input-area { padding: 10px 14px; background: var(--bg); border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: center; }
+.input-area input { flex: 1; background: var(--card2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; color: var(--white); font-family: var(--font-body); font-size: 13px; outline: none; transition: border-color .2s; }
+.input-area input:focus { border-color: var(--blue); }
+.input-area input::placeholder { color: var(--gray2); }
+.input-area button { background: var(--blue); color: white; border: none; border-radius: 10px; padding: 0 16px; height: 42px; font-family: var(--font-head); font-size: 15px; font-weight: 600; cursor: pointer; transition: background .2s; }
+.input-area button:hover { background: #2288ee; }
+.input-area button:disabled { background: var(--gray2); cursor: not-allowed; }
+
+
+/* ====== TOAST ====== */
+.toast{position:fixed;bottom:86px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card2);border:1px solid var(--blue);border-radius:10px;padding:10px 18px;font-size:13px;color:var(--white);opacity:0;transition:all .3s;z-index:400;white-space:nowrap;pointer-events:none;max-width:90%;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ====== INLINE EDIT FIELDS ====== */
+.editable-field{background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:6px 10px;color:var(--white);font-family:var(--font-body);font-size:13px;width:100%;outline:none;transition:border-color .2s}
+.editable-field:focus{border-color:var(--blue)}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="toast" id="toast"></div>
+
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal-sheet">
+    <div class="modal-title">
+      Ficha de la Bicicleta
+      <button class="modal-close" onclick="closeModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="form-group"><label>Marca y Modelo</label><input class="editable-field" id="e-name" placeholder="Ej. Trek Marlin 7"></div>
+    <div class="form-group"><label>Año</label><input class="editable-field" id="e-year" type="number" placeholder="Ej. 2023"></div>
+    <div class="form-group"><label>Color</label><input class="editable-field" id="e-color" placeholder="Ej. Rojo"></div>
+    <div class="form-group"><label>Kilometraje (km)</label><input class="editable-field" id="e-km" type="number" placeholder="0"></div>
+    <button class="btn-primary" style="margin-top:6px" onclick="saveBike()">Guardar datos</button>
+  </div>
+</div>
+
+<div class="screen active" id="screen-login">
+  <div class="login-top">
+    <div class="logo-box"><svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="18" stroke="#3399FF" stroke-width="4" fill="none"/><circle cx="50" cy="50" r="8" fill="#3399FF"/><rect x="47" y="20" width="6" height="12" rx="2" fill="#3399FF"/><rect x="47" y="68" width="6" height="12" rx="2" fill="#3399FF"/><rect x="20" y="47" width="12" height="6" rx="2" fill="#3399FF"/><rect x="68" y="47" width="12" height="6" rx="2" fill="#3399FF"/><rect x="28" y="28" width="8" height="8" rx="2" fill="#3399FF" transform="rotate(45 32 32)"/><rect x="64" y="28" width="8" height="8" rx="2" fill="#3399FF" transform="rotate(45 68 32)"/><rect x="64" y="64" width="8" height="8" rx="2" fill="#3399FF" transform="rotate(45 68 68)"/><rect x="28" y="64" width="8" height="8" rx="2" fill="#3399FF" transform="rotate(45 32 68)"/><circle cx="30" cy="62" r="8" stroke="#3399FF" stroke-width="3" fill="none"/><circle cx="70" cy="62" r="8" stroke="#3399FF" stroke-width="3" fill="none"/><line x1="38" y1="62" x2="50" y2="44" stroke="#3399FF" stroke-width="3"/><line x1="50" y1="44" x2="62" y2="62" stroke="#3399FF" stroke-width="3"/><line x1="50" y1="44" x2="30" y2="62" stroke="#3399FF" stroke-width="2"/><line x1="44" y1="54" x2="62" y2="62" stroke="#3399FF" stroke-width="2"/><line x1="50" y1="44" x2="50" y2="36" stroke="#3399FF" stroke-width="3"/><line x1="44" y1="36" x2="56" y2="36" stroke="#3399FF" stroke-width="3"/><line x1="44" y1="54" x2="44" y2="46" stroke="#3399FF" stroke-width="2.5"/><line x1="40" y1="46" x2="48" y2="46" stroke="#3399FF" stroke-width="2.5"/></svg></div>
+    <div class="logo-name">YENAIAL</div>
+    <div class="logo-sub">Taller de Bicicletas</div>
+  </div>
+  <div class="auth-card">
+    <h2>Iniciar Sesión</h2>
+    <div class="form-group">
+      <label>Correo Electrónico</label>
+      <div class="input-wrap">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg>
+        <input type="email" id="login-email" placeholder="tu@email.com">
+      </div>
+      <div class="field-error" id="login-email-err">Ingresa un correo válido con @</div>
+    </div>
+    <div class="form-group">
+      <label>Contraseña</label>
+      <div class="input-wrap">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <input type="password" id="login-pass" placeholder="••••••••">
+        <button class="eye-btn" onclick="toggleVis('login-pass',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+      <div class="field-error" id="login-pass-err">Contraseña incorrecta</div>
+    </div>
+    <div class="form-row">
+      <label class="checkbox-wrap"><input type="checkbox" checked> Recordarme</label>
+      <span class="link-blue" onclick="goTo('forgot')">¿Olvidaste tu contraseña?</span>
+    </div>
+    <button class="btn-primary" onclick="doLogin()">Iniciar Sesión</button>
+    <div class="divider"><span></span></div>
+    <div class="auth-bottom">¿No tienes una cuenta? <span class="link-blue" onclick="goTo('register')">Regístrate</span></div>
+  </div>
+  <div class="login-footer">© 2026 YENAIAL - Taller de Bicicletas. Todos los derechos reservados.</div>
+</div>
+
+<div class="screen" id="screen-register">
+  <div class="login-top" style="margin-top:10px">
+    <div class="logo-box"><svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="18" stroke="#3399FF" stroke-width="4" fill="none"/><circle cx="50" cy="50" r="8" fill="#3399FF"/><rect x="47" y="20" width="6" height="12" rx="2" fill="#3399FF"/><rect x="47" y="68" width="6" height="12" rx="2" fill="#3399FF"/><rect x="20" y="47" width="12" height="6" rx="2" fill="#3399FF"/><rect x="68" y="47" width="12" height="6" rx="2" fill="#3399FF"/><circle cx="30" cy="62" r="8" stroke="#3399FF" stroke-width="3" fill="none"/><circle cx="70" cy="62" r="8" stroke="#3399FF" stroke-width="3" fill="none"/><line x1="38" y1="62" x2="50" y2="44" stroke="#3399FF" stroke-width="3"/><line x1="50" y1="44" x2="62" y2="62" stroke="#3399FF" stroke-width="3"/><line x1="50" y1="44" x2="30" y2="62" stroke="#3399FF" stroke-width="2"/><line x1="44" y1="54" x2="62" y2="62" stroke="#3399FF" stroke-width="2"/><line x1="50" y1="44" x2="50" y2="36" stroke="#3399FF" stroke-width="3"/><line x1="44" y1="36" x2="56" y2="36" stroke="#3399FF" stroke-width="3"/></svg></div>
+    <div class="logo-name">YENAIAL</div>
+    <div class="logo-sub">Taller de Bicicletas</div>
+  </div>
+  <div class="auth-card" style="margin:0 24px 20px">
+    <h2>Crear Cuenta</h2>
+    <div class="form-group">
+      <label>Nombre completo</label>
+      <div class="input-wrap">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <input type="text" id="reg-name" placeholder="Tu nombre">
+      </div>
+      <div class="field-error" id="reg-name-err">Ingresa tu nombre</div>
+    </div>
+    <div class="form-group">
+      <label>Correo Electrónico</label>
+      <div class="input-wrap">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg>
+        <input type="email" id="reg-email" placeholder="tu@email.com">
+      </div>
+      <div class="field-error" id="reg-email-err">Ingresa un correo válido con @</div>
+    </div>
+    <div class="form-group">
+      <label>Contraseña</label>
+      <div class="input-wrap">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <input type="password" id="reg-pass" placeholder="Mínimo 8 caracteres" oninput="checkPwStrength(this.value)">
+        <button class="eye-btn" onclick="toggleVis('reg-pass',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+      <div class="pw-strength"><div class="pw-strength-bar" id="pw-bar"></div></div>
+      <div class="pw-hint" id="pw-hint">Usa mayúsculas, números y símbolos</div>
+      <div class="field-error" id="reg-pass-err">La contraseña debe tener al menos 8 caracteres</div>
+    </div>
+    <div class="form-group">
+      <label>Confirmar Contraseña</label>
+      <div class="input-wrap">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <input type="password" id="reg-pass2" placeholder="Repite tu contraseña">
+        <button class="eye-btn" onclick="toggleVis('reg-pass2',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+      <div class="field-error" id="reg-pass2-err">Las contraseñas no coinciden</div>
+    </div>
+    <button class="btn-primary" onclick="doRegister()">Crear Cuenta</button>
+    <div class="divider"><span></span></div>
+    <div class="auth-bottom">¿Ya tienes cuenta? <span class="link-blue" onclick="goTo('login')">Inicia Sesión</span></div>
+  </div>
+  <div class="login-footer">© 2026 YENAIAL - Taller de Bicicletas. Todos los derechos reservados.</div>
+</div>
+
+<div class="screen" id="screen-forgot">
+  <div class="login-top" style="margin-top:30px">
+    <div class="logo-box"><svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="18" stroke="#3399FF" stroke-width="4" fill="none"/><circle cx="50" cy="50" r="8" fill="#3399FF"/><rect x="47" y="20" width="6" height="12" rx="2" fill="#3399FF"/><rect x="47" y="68" width="6" height="12" rx="2" fill="#3399FF"/><rect x="20" y="47" width="12" height="6" rx="2" fill="#3399FF"/><rect x="68" y="47" width="12" height="6" rx="2" fill="#3399FF"/><circle cx="30" cy="62" r="8" stroke="#3399FF" stroke-width="3" fill="none"/><circle cx="70" cy="62" r="8" stroke="#3399FF" stroke-width="3" fill="none"/><line x1="38" y1="62" x2="50" y2="44" stroke="#3399FF" stroke-width="3"/><line x1="50" y1="44" x2="62" y2="62" stroke="#3399FF" stroke-width="3"/></svg></div>
+    <div class="logo-name">YENAIAL</div>
+    <div class="logo-sub">Taller de Bicicletas</div>
+  </div>
+  <div class="auth-card" style="margin:0 24px 20px">
+    <h2>Recuperar Contraseña</h2>
+    <p style="font-size:13px;color:var(--gray);margin-bottom:18px">Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.</p>
+    <div class="form-group">
+      <label>Correo Electrónico</label>
+      <div class="input-wrap">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg>
+        <input type="email" id="forgot-email" placeholder="tu@email.com">
+      </div>
+      <div class="field-error" id="forgot-err">Ingresa un correo válido con @</div>
+    </div>
+    <button class="btn-primary" onclick="doForgot()">Enviar correo de recuperación</button>
+    <div class="divider"><span></span></div>
+    <div class="auth-bottom"><span class="link-blue" onclick="goTo('login')">← Volver al login</span></div>
+  </div>
+  <div class="login-footer">© 2026 YENAIAL - Taller de Bicicletas. Todos los derechos reservados.</div>
+</div>
+
+<div class="screen" id="screen-dashboard">
+  <div class="top-header">
+    <div class="logo-box-sm"><svg viewBox="0 0 60 60" fill="none"><circle cx="30" cy="30" r="10" stroke="#3399FF" stroke-width="3" fill="none"/><circle cx="30" cy="30" r="4" fill="#3399FF"/><rect x="28" y="12" width="4" height="8" rx="1" fill="#3399FF"/><rect x="28" y="40" width="4" height="8" rx="1" fill="#3399FF"/><rect x="12" y="28" width="8" height="4" rx="1" fill="#3399FF"/><rect x="40" y="28" width="8" height="4" rx="1" fill="#3399FF"/><circle cx="18" cy="37" r="5" stroke="#3399FF" stroke-width="2" fill="none"/><circle cx="42" cy="37" r="5" stroke="#3399FF" stroke-width="2" fill="none"/><line x1="23" y1="37" x2="30" y2="27" stroke="#3399FF" stroke-width="2"/><line x1="30" y1="27" x2="37" y2="37" stroke="#3399FF" stroke-width="2"/><line x1="30" y1="27" x2="30" y2="22" stroke="#3399FF" stroke-width="2"/><line x1="27" y1="22" x2="33" y2="22" stroke="#3399FF" stroke-width="2"/></svg></div>
+    <div class="header-text"><div class="name">YENAIAL</div><div class="sub">Taller de Bicicletas</div></div>
+    <div class="header-right">
+      <button class="logout-btn" onclick="doLogout()">Salir</button>
+      <div class="user-avatar" id="dash-avatar">?</div>
+    </div>
+  </div>
+  <div class="scroll-content">
+    <div class="page-title"><h2 id="dash-greeting">Panel de control</h2></div>
+    <div class="estado-card">
+      <div class="estado-top">
+        <div>
+          <div class="estado-label">Estado actual</div>
+          <div class="estado-value" id="dash-estado">Sin reservas activas</div>
+        </div>
+        <div class="estado-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        </div>
+      </div>
+      <div class="progress-steps" id="progress-steps">
+        <div class="step">
+          <div class="step-dot" id="step0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="step-bar"><div class="fill" id="fill0" style="width:0%"></div></div>
+          <div class="step-name" id="sname0">Diagnóstico</div>
+        </div>
+        <div class="step">
+          <div class="step-dot" id="step1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="step-bar"><div class="fill" id="fill1" style="width:0%"></div></div>
+          <div class="step-name" id="sname1">Reparación</div>
+        </div>
+        <div class="step">
+          <div class="step-dot" id="step2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="step-bar"><div class="fill" id="fill2" style="width:0%"></div></div>
+          <div class="step-name" id="sname2">Pruebas</div>
+        </div>
+        <div class="step">
+          <div class="step-dot" id="step3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="step-bar"><div class="fill" id="fill3" style="width:0%"></div></div>
+          <div class="step-name" id="sname3">Listo</div>
+        </div>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num" id="stat-days">—</div>
+        <div class="stat-label" id="stat-days-label" style="color:var(--blue)">días</div>
+        <div class="stat-label" style="font-size:9px">Próximo servicio</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-comps">—</div>
+        <div class="stat-label green" id="stat-comps-label">Componentes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-alerts">—</div>
+        <div class="stat-label red">Alertas</div>
+      </div>
+    </div>
+    <div class="section-title">Actividad reciente</div>
+    <div class="activity-list" id="activity-list">
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <p>Aún no hay actividad registrada.<br>Realiza una reserva para comenzar.</p>
+      </div>
+    </div>
+  </div>
+  <button class="fab" onclick="goTo('reservas')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </button>
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="goTo('dashboard')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Inicio</span></button>
+    <button class="nav-item" onclick="goTo('garage')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg><span>Garaje</span></button>
+    <button class="nav-item" onclick="goTo('reservas')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>Reservas</span></button>
+    <button class="nav-item" onclick="goTo('bot')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7H3a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/><path d="M5 14v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/><circle cx="9" cy="18" r="1" fill="currentColor"/><circle cx="15" cy="18" r="1" fill="currentColor"/></svg><span>Asistente</span></button>
+  </nav>
+</div>
+
+<div class="screen" id="screen-garage">
+  <div class="top-header">
+    <div class="logo-box-sm"><svg viewBox="0 0 60 60" fill="none"><circle cx="30" cy="30" r="10" stroke="#3399FF" stroke-width="3" fill="none"/><circle cx="30" cy="30" r="4" fill="#3399FF"/><rect x="28" y="12" width="4" height="8" rx="1" fill="#3399FF"/><rect x="28" y="40" width="4" height="8" rx="1" fill="#3399FF"/><rect x="12" y="28" width="8" height="4" rx="1" fill="#3399FF"/><rect x="40" y="28" width="8" height="4" rx="1" fill="#3399FF"/><circle cx="18" cy="37" r="5" stroke="#3399FF" stroke-width="2" fill="none"/><circle cx="42" cy="37" r="5" stroke="#3399FF" stroke-width="2" fill="none"/><line x1="23" y1="37" x2="30" y2="27" stroke="#3399FF" stroke-width="2"/><line x1="30" y1="27" x2="37" y2="37" stroke="#3399FF" stroke-width="2"/><line x1="30" y1="27" x2="30" y2="22" stroke="#3399FF" stroke-width="2"/><line x1="27" y1="22" x2="33" y2="22" stroke="#3399FF" stroke-width="2"/></svg></div>
+    <div class="header-text"><div class="name">YENAIAL</div><div class="sub">Taller de Bicicletas</div></div>
+    <div class="header-right">
+      <button class="logout-btn" onclick="doLogout()">Salir</button>
+    </div>
+  </div>
+  <div class="scroll-content">
+    <div class="page-title"><h2>Mi Garaje</h2><p>Ficha técnica de tu bicicleta</p></div>
+    
+    <div id="garage-dynamic-content">
+      </div>
+
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="goTo('dashboard')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Inicio</span></button>
+    <button class="nav-item active" onclick="goTo('garage')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg><span>Garaje</span></button>
+    <button class="nav-item" onclick="goTo('reservas')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>Reservas</span></button>
+    <button class="nav-item" onclick="goTo('bot')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7H3a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/><path d="M5 14v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/><circle cx="9" cy="18" r="1" fill="currentColor"/><circle cx="15" cy="18" r="1" fill="currentColor"/></svg><span>Asistente</span></button>
+  </nav>
+</div>
+
+<div class="screen" id="screen-reservas">
+  <div class="top-header">
+    <div class="logo-box-sm"><svg viewBox="0 0 60 60" fill="none"><circle cx="30" cy="30" r="10" stroke="#3399FF" stroke-width="3" fill="none"/><circle cx="30" cy="30" r="4" fill="#3399FF"/><rect x="28" y="12" width="4" height="8" rx="1" fill="#3399FF"/><rect x="28" y="40" width="4" height="8" rx="1" fill="#3399FF"/><rect x="12" y="28" width="8" height="4" rx="1" fill="#3399FF"/><rect x="40" y="28" width="8" height="4" rx="1" fill="#3399FF"/><circle cx="18" cy="37" r="5" stroke="#3399FF" stroke-width="2" fill="none"/><circle cx="42" cy="37" r="5" stroke="#3399FF" stroke-width="2" fill="none"/><line x1="23" y1="37" x2="30" y2="27" stroke="#3399FF" stroke-width="2"/><line x1="30" y1="27" x2="37" y2="37" stroke="#3399FF" stroke-width="2"/><line x1="30" y1="27" x2="30" y2="22" stroke="#3399FF" stroke-width="2"/><line x1="27" y1="22" x2="33" y2="22" stroke="#3399FF" stroke-width="2"/></svg></div>
+    <div class="header-text"><div class="name">YENAIAL</div><div class="sub">Taller de Bicicletas</div></div>
+    <div class="header-right">
+      <button class="logout-btn" onclick="doLogout()">Salir</button>
+    </div>
+  </div>
+  <div class="scroll-content">
+    <div class="page-title"><h2>Reservar turno</h2><p>Selecciona fecha y horario</p></div>
+    <div class="calendar-card">
+      <div class="cal-header">
+        <button class="cal-nav" onclick="calNav(-1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <span class="month" id="cal-month-label">Junio 2026</span>
+        <button class="cal-nav" onclick="calNav(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+      </div>
+      <div class="cal-days-header"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+    <div class="time-section">
+      <div class="section-title">Horario disponible</div>
+      <div class="time-grid">
+        <button class="time-btn" onclick="selectTime(this,'09:00')">09:00</button>
+        <button class="time-btn selected" onclick="selectTime(this,'10:00')">10:00</button>
+        <button class="time-btn" onclick="selectTime(this,'11:00')">11:00</button>
+        <button class="time-btn" onclick="selectTime(this,'14:00')">14:00</button>
+        <button class="time-btn" onclick="selectTime(this,'15:00')">15:00</button>
+        <button class="time-btn" onclick="selectTime(this,'16:00')">16:00</button>
+        <button class="time-btn" onclick="selectTime(this,'17:00')">17:00</button>
+      </div>
+    </div>
+    <div class="summary-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <div><div class="s-label">Turno seleccionado</div><div class="s-value" id="selected-summary">Selecciona una fecha</div></div>
+    </div>
+    <button class="btn-confirm" onclick="confirmReservation()">Confirmar reserva</button>
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="goTo('dashboard')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Inicio</span></button>
+    <button class="nav-item" onclick="goTo('garage')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg><span>Garaje</span></button>
+    <button class="nav-item active" onclick="goTo('reservas')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>Reservas</span></button>
+    <button class="nav-item" onclick="goTo('bot')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7H3a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/><path d="M5 14v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/><circle cx="9" cy="18" r="1" fill="currentColor"/><circle cx="15" cy="18" r="1" fill="currentColor"/></svg><span>Asistente</span></button>
+  </nav>
+</div>
+
+<div class="screen" id="screen-bot">
+  <div class="chat-container">
+      <div class="chat-header">
+          <h2>Taller Yenaial</h2>
+          <p>Yenaial Bot 🛠️</p>
+      </div>
+      <div id="chatBox" class="chat-box">
+          <div class="msg ai-msg">¡Hola! Soy <b>Yenaial Bot</b>, el asistente técnico de BiciFix. ¿Qué le ocurre a tu bicicleta? Puedo darte un presupuesto aproximado o ayudarte a buscar piezas en Amazon si prefieres cambiarlas tú mismo.</div>
+      </div>
+      <div class="input-area">
+          <input type="text" id="userInput" placeholder="Pregúntame por una reparación o presupuesto...">
+          <button id="sendBtn">Enviar</button>
+      </div>
+  </div>
+  
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="goTo('dashboard')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Inicio</span></button>
+    <button class="nav-item" onclick="goTo('garage')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg><span>Garaje</span></button>
+    <button class="nav-item" onclick="goTo('reservas')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>Reservas</span></button>
+    <button class="nav-item active" onclick="goTo('bot')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7H3a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/><path d="M5 14v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/><circle cx="9" cy="18" r="1" fill="currentColor"/><circle cx="15" cy="18" r="1" fill="currentColor"/></svg><span>Asistente</span></button>
+  </nav>
+</div>
+
+</div><script>
+/* ===================================================
+   APP STATE
+=================================================== */
+const APP = {
+  user: null, // { name, email, initials }
+  bike: null, // Inicialmente vacío (Sin bicicleta por defecto)
+  reservations: [],
+  activity: [],
+  calYear: 2026, calMonth: 5, // 0-indexed, June=5
+  selectedDay: null, selectedTime: '10:00',
+  components: [
+    { name:'Frenos', model:'- Sin registrar -', status:'Desconocido', statusClass:'gray', time:'', warn:false },
+    { name:'Transmisión', model:'- Sin registrar -', status:'Desconocido', statusClass:'gray', time:'', warn:false },
+    { name:'Suspensión', model:'- Sin registrar -', status:'Desconocido', statusClass:'gray', time:'', warn:false },
+    { name:'Cadena', model:'- Sin registrar -', status:'Desconocido', statusClass:'gray', time:'', warn:false },
+  ]
+};
+
+const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const MONTH_DAYS = [31,28,31,30,31,30,31,31,30,31,30,31];
+
+/* ===================================================
+   NAVIGATION
+=================================================== */
+const screenMap = { login:'screen-login', register:'screen-register', forgot:'screen-forgot',
+  dashboard:'screen-dashboard', garage:'screen-garage', reservas:'screen-reservas', bot:'screen-bot' };
+
+function goTo(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const t = document.getElementById(screenMap[name]);
+  if (t) t.classList.add('active');
+  if (name === 'dashboard') refreshDashboard();
+  if (name === 'garage') refreshGarage();
+  if (name === 'reservas') buildCalendar();
+  window.scrollTo(0,0);
+  const chatArea = document.getElementById('chatBox');
+  if (chatArea) setTimeout(()=>chatArea.scrollTop=chatArea.scrollHeight, 50);
+}
+
+/* ===================================================
+   UTILS
+=================================================== */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2600);
+}
+function toggleVis(id, btn) {
+  const inp = document.getElementById(id);
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+function setErr(id, show, msg='') {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = msg || el.textContent;
+  el.classList.toggle('show', show);
+  const inp = el.previousElementSibling?.querySelector?.('input') || document.querySelector('#'+id)?.previousElementSibling?.querySelector?.('input');
+}
+function clearErrs(...ids) { ids.forEach(id=>{ const e=document.getElementById(id); if(e){e.classList.remove('show')} }); }
+function isValidEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+
+/* ===================================================
+   AUTH & LOGOUT
+=================================================== */
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  clearErrs('login-email-err','login-pass-err');
+  let ok = true;
+  if (!isValidEmail(email)) { setErr('login-email-err', true, 'Ingresa un correo válido con @'); ok=false; }
+  if (!pass) { setErr('login-pass-err', true, 'Ingresa tu contraseña'); ok=false; }
+  if (!ok) return;
+  // Check registered user or demo
+  const stored = JSON.parse(localStorage.getItem('yenaial_user')||'null');
+  if (stored && stored.email === email) {
+    if (stored.pass !== pass) { setErr('login-pass-err', true, 'Contraseña incorrecta'); return; }
+    APP.user = { name: stored.name, email: stored.email, initials: stored.name.slice(0,2).toUpperCase() };
+  } else {
+    // demo login (no registration)
+    APP.user = { name: email.split('@')[0], email, initials: email.slice(0,2).toUpperCase() };
+  }
+  goTo('dashboard');
+}
+
+function doRegister() {
+  const name  = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass  = document.getElementById('reg-pass').value;
+  const pass2 = document.getElementById('reg-pass2').value;
+  clearErrs('reg-name-err','reg-email-err','reg-pass-err','reg-pass2-err');
+  let ok = true;
+  if (!name) { setErr('reg-name-err', true, 'Ingresa tu nombre'); ok=false; }
+  if (!isValidEmail(email)) { setErr('reg-email-err', true, 'Ingresa un correo válido con @'); ok=false; }
+  if (pass.length < 8) { setErr('reg-pass-err', true, 'Mínimo 8 caracteres'); ok=false; }
+  if (pass !== pass2) { setErr('reg-pass2-err', true, 'Las contraseñas no coinciden'); ok=false; }
+  if (!ok) return;
+  localStorage.setItem('yenaial_user', JSON.stringify({ name, email, pass }));
+  APP.user = { name, email, initials: name.slice(0,2).toUpperCase() };
+  showToast('✓ Cuenta creada. ¡Bienvenido/a!');
+  goTo('dashboard');
+}
+
+function doForgot() {
+  const email = document.getElementById('forgot-email').value.trim();
+  clearErrs('forgot-err');
+  if (!isValidEmail(email)) { setErr('forgot-err', true, 'Ingresa un correo válido con @'); return; }
+  showToast(`✓ Correo de recuperación enviado a ${email}`);
+  setTimeout(()=>goTo('login'), 1800);
+}
+
+function doLogout() {
+  APP.user = null;
+  // Resetear estados si se desea, por ahora solo sacamos al usuario a login
+  document.getElementById('login-pass').value = '';
+  goTo('login');
+  showToast('Has cerrado sesión correctamente');
+}
+
+function checkPwStrength(pw) {
+  const bar = document.getElementById('pw-bar');
+  const hint = document.getElementById('pw-hint');
+  let score = 0;
+  if (pw.length >= 8) score++;
+  if (/[A-Z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  const pcts = ['0%','30%','55%','80%','100%'];
+  const colors = ['','#ef4444','#f97316','#eab308','#22c55e'];
+  const labels = ['','Muy débil','Débil','Media','Fuerte'];
+  bar.style.width = pcts[score];
+  bar.style.background = colors[score] || '';
+  hint.textContent = score > 0 ? labels[score] : 'Usa mayúsculas, números y símbolos';
+}
+
+/* ===================================================
+   DASHBOARD
+=================================================== */
+function refreshDashboard() {
+  if (!APP.user) return;
+  document.getElementById('dash-avatar').textContent = APP.user.initials;
+  document.getElementById('dash-greeting').textContent = `Hola, ${APP.user.name.split(' ')[0]}`;
+
+  // Stats from bike data
+  if (APP.bike) {
+    const warns = APP.components.filter(c=>c.warn).length;
+    const ok = APP.components.filter(c=>!c.warn).length;
+    document.getElementById('stat-alerts').textContent = warns;
+    document.getElementById('stat-comps').textContent = `${ok}/${APP.components.length}`;
+    
+    const daysLeft = Math.max(0, Math.round(30 - (APP.bike.km % 500) / 16.7));
+    document.getElementById('stat-days').textContent = isNaN(daysLeft) ? '-' : daysLeft;
+  } else {
+    document.getElementById('stat-alerts').textContent = '-';
+    document.getElementById('stat-comps').textContent = '-';
+    document.getElementById('stat-days').textContent = '-';
+  }
+
+  // Reservation state
+  if (APP.reservations.length > 0) {
+    const last = APP.reservations[APP.reservations.length-1];
+    document.getElementById('dash-estado').textContent = `Reserva: ${last.date} · ${last.time}`;
+    setStep(0, 'done'); setFill(0, 100);
+    setStep(1, 'done'); setFill(1, 100);
+    setStepName(0, true); setStepName(1, true);
+    setStep(2, 'partial'); setFill(2, 50);
+    setStep(3, ''); setFill(3, 0);
+  } else {
+    document.getElementById('dash-estado').textContent = 'Sin reservas activas';
+    for(let i=0;i<4;i++){ setStep(i,''); setFill(i,0); setStepName(i,false); }
+  }
+
+  // Activity
+  const list = document.getElementById('activity-list');
+  if (APP.activity.length === 0) {
+    list.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>Aún no hay actividad registrada.<br>Realiza una reserva para comenzar.</p></div>`;
+  } else {
+    list.innerHTML = APP.activity.slice().reverse().slice(0,6).map(a=>`
+      <div class="activity-item">
+        <div class="activity-left">
+          <div class="activity-dot"></div>
+          <div class="activity-info"><div class="title">${a.title}</div><div class="time">${a.time}</div></div>
+        </div>
+        <div class="activity-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>`).join('');
+  }
+}
+
+function setStep(i, cls) {
+  const el = document.getElementById(`step${i}`);
+  el.className = 'step-dot' + (cls ? ' '+cls : '');
+  if (cls==='done') el.querySelector('svg').style.stroke='#fff';
+  else if (cls==='partial') el.querySelector('svg').style.stroke='#3399FF';
+  else el.querySelector('svg').style.stroke='#555';
+}
+function setFill(i, pct) { document.getElementById(`fill${i}`).style.width = pct+'%'; }
+function setStepName(i, active) { document.getElementById(`sname${i}`).className = 'step-name'+(active?' active':''); }
+
+function addActivity(title) {
+  const now = new Date();
+  APP.activity.push({ title, time: 'Ahora mismo', date: now });
+}
+
+/* ===================================================
+   GARAGE (Estado Vacío Implementado)
+=================================================== */
+function refreshGarage() {
+  const dynamicContent = document.getElementById('garage-dynamic-content');
+  
+  if (!APP.bike) {
+    // ESTADO VACÍO (El usuario debe meter la bici)
+    dynamicContent.innerHTML = `
+      <div class="empty-state" style="margin-top: 40px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:60px;height:60px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        <p style="margin-bottom:20px; font-size:14px;">No tienes ninguna bicicleta registrada todavía.</p>
+        <button class="btn-primary" onclick="openEditModal()" style="width:auto; padding: 10px 24px; font-size:14px;">Registrar mi bicicleta</button>
+      </div>
+    `;
+  } else {
+    // RENDERIZAR BICI Y COMPONENTES
+    const compIconsSVG = [
+      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg>`,
+      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>`,
+      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
+      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="8" width="6" height="8" rx="2"/><rect x="16" y="8" width="6" height="8" rx="2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`
+    ];
+    
+    let compsHTML = APP.components.map((c,i)=>`
+      <div class="comp-item">
+        <div class="comp-icon ${c.warn?'warn':''}">${compIconsSVG[i]}</div>
+        <div class="comp-info">
+          <div class="c-name">${c.name}</div>
+          <div class="c-model">${c.model}</div>
+          <div class="c-status ${c.statusClass}">● ${c.status}</div>
+        </div>
+        <div class="comp-right">
+          <div class="c-time">${c.time}</div>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>`).join('');
+
+    dynamicContent.innerHTML = `
+      <div class="bike-card">
+        <div class="bike-icon-wrap">
+          <svg viewBox="0 0 120 80" fill="none" stroke="#3399FF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="25" cy="55" r="18"/><circle cx="95" cy="55" r="18"/><circle cx="25" cy="55" r="3" fill="#3399FF"/><circle cx="95" cy="55" r="3" fill="#3399FF"/><line x1="25" y1="37" x2="25" y2="55"/><line x1="43" y1="55" x2="25" y2="55"/><line x1="38" y1="43" x2="25" y2="55"/><line x1="12" y1="43" x2="25" y2="55"/><line x1="95" y1="37" x2="95" y2="55"/><line x1="113" y1="55" x2="95" y2="55"/><line x1="108" y1="43" x2="95" y2="55"/><line x1="82" y1="43" x2="95" y2="55"/><line x1="43" y1="55" x2="60" y2="28"/><line x1="60" y1="28" x2="77" y2="55"/><line x1="55" y1="40" x2="77" y2="55"/><line x1="60" y1="28" x2="62" y2="18"/><line x1="56" y1="18" x2="68" y2="18"/><line x1="55" y1="40" x2="55" y2="28"/><line x1="50" y1="28" x2="60" y2="28"/><circle cx="60" cy="48" r="6"/></svg>
+        </div>
+        <div class="bike-name">${APP.bike.name}</div>
+        <div class="bike-details">
+          <div class="bike-detail"><div class="d-label">Año</div><div class="d-value">${APP.bike.year || '-'}</div></div>
+          <div class="bike-detail"><div class="d-label">Color</div><div class="d-value" style="font-size:10px">${APP.bike.color || '-'}</div></div>
+          <div class="bike-detail"><div class="d-label">Kilometraje</div><div class="d-value" style="font-size:11px">${APP.bike.km ? Number(APP.bike.km).toLocaleString('es')+' km' : '0 km'}</div></div>
+        </div>
+        <button class="edit-btn" onclick="openEditModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Editar bicicleta
+        </button>
+      </div>
+      <div class="section-title">Componentes</div>
+      <div class="comp-list">${compsHTML}</div>
+    `;
+  }
+}
+
+function openEditModal() {
+  if (APP.bike) {
+    document.getElementById('e-name').value = APP.bike.name || '';
+    document.getElementById('e-year').value = APP.bike.year || '';
+    document.getElementById('e-color').value = APP.bike.color || '';
+    document.getElementById('e-km').value   = APP.bike.km || '';
+  } else {
+    document.getElementById('e-name').value = '';
+    document.getElementById('e-year').value = '';
+    document.getElementById('e-color').value = '';
+    document.getElementById('e-km').value   = '';
+  }
+  document.getElementById('edit-modal').classList.add('open');
+}
+function closeModal() { document.getElementById('edit-modal').classList.remove('open'); }
+
+function saveBike() {
+  const nameInput = document.getElementById('e-name').value.trim();
+  if (!nameInput) {
+    showToast('⚠ El nombre de la bicicleta es obligatorio');
+    return;
+  }
+  
+  if (!APP.bike) APP.bike = {};
+  
+  APP.bike.name  = nameInput;
+  APP.bike.year  = parseInt(document.getElementById('e-year').value) || '';
+  APP.bike.color = document.getElementById('e-color').value.trim() || '';
+  APP.bike.km    = parseFloat(document.getElementById('e-km').value) || 0;
+  
+  // Rellenamos unos datos de prueba simulados para los componentes al registrar por primera vez
+  if (APP.components[0].model === '- Sin registrar -') {
+    APP.components = [
+      { name:'Frenos', model:'Genéricos', status:'Revisar', statusClass:'warn', time:'Hoy', warn:true },
+      { name:'Transmisión', model:'Genérica', status:'Bueno', statusClass:'good', time:'Hoy', warn:false },
+      { name:'Suspensión', model:'Rígida/Genérica', status:'Bueno', statusClass:'good', time:'Hoy', warn:false },
+      { name:'Cadena', model:'Estándar', status:'Bueno', statusClass:'good', time:'Hoy', warn:false },
+    ];
+  }
+
+  closeModal();
+  refreshGarage();
+  refreshDashboard(); // Para actualizar los stats de alertas arriba
+  addActivity(`Bicicleta guardada: ${APP.bike.name}`);
+  showToast('✓ Datos de la bicicleta guardados');
+}
+document.getElementById('edit-modal').addEventListener('click', function(e){
+  if(e.target===this) closeModal();
+});
+
+/* ===================================================
+   CALENDAR
+=================================================== */
+function getDaysInMonth(y, m) {
+  if (m===1 && ((y%4===0&&y%100!==0)||y%400===0)) return 29;
+  return MONTH_DAYS[m];
+}
+function getFirstDayOfWeek(y, m) {
+  const d = new Date(y, m, 1).getDay();
+  return (d + 6) % 7;
+}
+
+function buildCalendar() {
+  const { calYear: y, calMonth: m } = APP;
+  document.getElementById('cal-month-label').textContent = `${MONTHS[m]} ${y}`;
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+  const firstDay = getFirstDayOfWeek(y, m);
+  const days = getDaysInMonth(y, m);
+  const today = new Date();
+
+  for (let i=0; i<firstDay; i++) {
+    const e=document.createElement('div'); e.className='cal-day'; grid.appendChild(e);
+  }
+  for (let d=1; d<=days; d++) {
+    const cell = document.createElement('div');
+    const date = new Date(y, m, d);
+    const dow = date.getDay();
+    const isPast = date < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const isToday = date.toDateString() === today.toDateString();
+    const isAvail = !isPast && dow!==0 && dow!==6;
+    const isSel = APP.selectedDay && APP.selectedDay.d===d && APP.selectedDay.m===m && APP.selectedDay.y===y;
+    cell.className = 'cal-day' + (isAvail?' available':'') + (isSel?' selected':'') + (isToday&&!isSel?' today':'') + (isPast?' past':'');
+    cell.textContent = d;
+    if (isAvail) cell.onclick = ()=>selectDay(d, y, m, cell);
+    grid.appendChild(cell);
+  }
+}
+function calNav(dir) {
+  APP.calMonth += dir;
+  if (APP.calMonth > 11) { APP.calMonth=0; APP.calYear++; }
+  if (APP.calMonth < 0)  { APP.calMonth=11; APP.calYear--; }
+  buildCalendar();
+  updateCalSummary();
+}
+function selectDay(d, y, m, el) {
+  document.querySelectorAll('.cal-day').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  APP.selectedDay = {d, y, m};
+  updateCalSummary();
+}
+function selectTime(btn, time) {
+  document.querySelectorAll('.time-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  APP.selectedTime = time;
+  updateCalSummary();
+}
+function updateCalSummary() {
+  if (!APP.selectedDay) { document.getElementById('selected-summary').textContent='Selecciona una fecha'; return; }
+  const {d, y, m} = APP.selectedDay;
+  document.getElementById('selected-summary').textContent = `${d} de ${MONTHS[m]}, ${y} - ${APP.selectedTime} hs`;
+}
+function confirmReservation() {
+  if (!APP.selectedDay) { showToast('⚠ Selecciona una fecha primero'); return; }
+  const {d, y, m} = APP.selectedDay;
+  const dateStr = `${d} de ${MONTHS[m]}, ${y}`;
+  const entry = { date: dateStr, time: APP.selectedTime };
+  APP.reservations.push(entry);
+  addActivity(`Reserva confirmada: ${dateStr} · ${APP.selectedTime} hs`);
+  showToast(`✓ Turno confirmado: ${dateStr} · ${APP.selectedTime} hs`);
+}
+
+/* ===================================================
+   YENAIAL BOT (Con la estructura inyectada)
+=================================================== */
+const API_KEY = "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";
+const MODEL   = "llama-3.1-8b-instant";
+
+const systemInstructionText = `
+Tu nombre es "Yenaial Bot". Eres un mecánico experto en ciclismo y el asistente virtual del "Taller de Bicicletas Yenaial".
+Tu objetivo es resolver dudas de mecánica, calcular presupuestos aproximados y guiar a los clientes de forma amable.
+Responde siempre de forma concisa y directa, sin alargarte innecesariamente.
+`;
+
+const historial = [{ role:"system", content: systemInstructionText }];
+
+function formatearTexto(raw) {
+  if (!raw) return '';
+  return raw.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>');
+}
+
+async function enviarPregunta() {
+  const inputField = document.getElementById('userInput');
+  const sendBtn    = document.getElementById('sendBtn');
+  const chatBox    = document.getElementById('chatBox');
+  const msg = inputField.value.trim();
+  if (!msg) return;
+
+  chatBox.innerHTML += `<div class="msg user-msg">${msg}</div>`;
+  inputField.value = '';
+  sendBtn.disabled = true;
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  const typingId = 'typing-'+Date.now();
+  chatBox.innerHTML += `<div class="msg typing-msg" id="${typingId}"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  historial.push({ role:'user', content: msg });
+
+  try {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method:'POST',
+      headers:{ 'Authorization':`Bearer ${API_KEY}`, 'Content-Type':'application/json' },
+      body: JSON.stringify({ model: MODEL, messages: historial, max_tokens:400 })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(JSON.stringify(data));
+    const reply = data.choices[0].message.content;
+    historial.push({ role:'assistant', content: reply });
+    document.getElementById(typingId).remove();
+    chatBox.innerHTML += `<div class="msg ai-msg">${formatearTexto(reply)}</div>`;
+  } catch(err) {
+    document.getElementById(typingId)?.remove();
+    historial.pop();
+    chatBox.innerHTML += `<div class="msg error-msg"><b>Error:</b> No se pudo conectar con Yenaial Bot. Intenta de nuevo.</div>`;
+  }
+  sendBtn.disabled = false;
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// Vinculamos los eventos al nuevo HTML del bot inyectado
+document.getElementById('sendBtn').addEventListener('click', enviarPregunta);
+document.getElementById('userInput').addEventListener('keypress', e=>{ if(e.key==='Enter') enviarPregunta(); });
+
+/* ===================================================
+   INIT
+=================================================== */
+buildCalendar();
+updateCalSummary();
+</script>
+</body>
+</html>
